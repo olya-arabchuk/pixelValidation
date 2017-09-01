@@ -18,9 +18,9 @@ public class BrowserStackTestNGTest {
     public WebDriver driver;
     public Local l;
 
-    public void setUpBrowserStack(String config_file, String environment, String browser, String browserVersion) throws Exception {
+    public void setUpBrowserStack(String environment) throws Exception {
         JSONParser parser = new JSONParser();
-        JSONObject config = (JSONObject) parser.parse(new FileReader("src/test/resources/conf/" + config_file));
+        JSONObject config = (JSONObject) parser.parse(new FileReader("src/test/resources/conf/conf.json"));
         JSONObject envs = (JSONObject) config.get("environments");
 
         DesiredCapabilities capabilities = new DesiredCapabilities();
@@ -29,10 +29,6 @@ public class BrowserStackTestNGTest {
         Iterator it = envCapabilities.entrySet().iterator();
         while (it.hasNext()) {
             Map.Entry pair = (Map.Entry) it.next();
-            if (environment.equals("decide")) {
-                capabilities.setCapability("browser", browser);
-                capabilities.setCapability("browser_version", browserVersion);
-            }
             capabilities.setCapability(pair.getKey().toString(), pair.getValue().toString());
         }
 

@@ -19,7 +19,7 @@ public class DataProviderUtility {
      * @return the object array of data
      */
 
-    public static List<String> readCsvFile(String dataFileLocation, boolean disableShuffle) {
+    public static List<String> readFile(String dataFileLocation, boolean disableShuffle) {
         List<String> data = new ArrayList<>();
 
         try (BufferedReader fileReader = new BufferedReader(new InputStreamReader(

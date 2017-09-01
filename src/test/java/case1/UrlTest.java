@@ -27,37 +27,45 @@ public class UrlTest extends SetUpUrlTest {
     private int stageUrlIndex = 0;
     private int productionUrlIndex = 1;
 
+    private int pixelTolerance = 1;
+
     @Test(dataProvider = "urls")
     public void test(TestRecord data) throws IOException {
 
         String stageUrl = data.getData()[stageUrlIndex];
         String productionUrl = data.getData()[productionUrlIndex];
         String urlName = stageUrl.replace(new URL(stageUrl).getHost(), "").replace("https", "").replaceAll("[^a-zA-Z0-9.-]", "");
-
         AShot aShot = new AShot().shootingStrategy(ShootingStrategies.viewportPasting(scrollingTime));
 
+        // run test url on stage env and take test screenshot
         driver.get(stageUrl);
         Screenshot stageScreenshot = aShot.takeScreenshot(driver);
         BufferedImage stageImage = stageScreenshot.getImage();
-        String stageFilePath = filePath + urlName + stageFile;
 
+        // run test url on production env and take test screenshot
         driver.get(productionUrl);
         Screenshot productionScreenshot = aShot.takeScreenshot(driver);
         BufferedImage productionImage = productionScreenshot.getImage();
-        String productionFilePath = filePath + urlName + productionFile;
-
-
-        String resultFilePath = filePath + urlName + resultFile;
 
         if (!stageImage.equals(productionImage)) {
             ImageCompareResult compareResult = new Rainbow4J().compare(stageImage, productionImage, new ComparisonOptions());
 
+            // create file names with 'pixel differences' num
+            String stageFilePath = filePath + compareResult.getPercentage() + urlName + stageFile;
+            String productionFilePath = filePath + compareResult.getPercentage() + urlName + productionFile;
+            String resultFilePath = filePath + compareResult.getPercentage() + urlName + resultFile;
+
+            // save screenshots and result picture
             ImageIO.write(compareResult.getComparisonMap(), extensionOverCase, new File(resultFilePath));
             ImageIO.write(stageImage, extensionOverCase, new File(stageFilePath));
             ImageIO.write(productionImage, extensionOverCase, new File(productionFilePath));
 
-            Assert.assertTrue(compareResult.getPercentage() < 1,
-                    "ScreenShots '"+ urlName + "' are not equal. Pixel differences - " + compareResult.getPercentage() + ".\n" +
+            /**
+             * Check if 'Pixel differences' less than 'pixelTolerance' value
+             * @param pixelTolerance can be modified for test validation
+             */
+            Assert.assertTrue(compareResult.getPercentage() < pixelTolerance,
+                    "ScreenShots '" + urlName + "' are not equal. Pixel differences - " + compareResult.getPercentage() + ".\n" +
                             "stage URL: " + stageUrl + "\nproduction URL: " + productionUrl);
         }
     }
