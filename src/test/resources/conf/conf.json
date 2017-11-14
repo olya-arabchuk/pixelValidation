@@ -5,7 +5,8 @@
   "capabilities": {
     "build": "testng-browserstack",
     "name": "single_test",
-    "browserstack.debug": true
+    "browserstack.debug": true, 
+    "browserstack.local": true
   },
   "environments": {
     "firefox56": {
